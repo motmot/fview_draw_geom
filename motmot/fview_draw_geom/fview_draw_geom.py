@@ -65,8 +65,6 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
     def __init__(self,wx_parent,fview_options):
         super(FviewDrawGeom, self).__init__(wx_parent)
 
-        print fview_options
-
         self._wx_parent = wx_parent
 
         self._pubo = None
@@ -93,7 +91,52 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
             self._ptclass = geometry_msgs.msg.Point32
             self._pubpts = rospy.Publisher('/flymad/geom_poly',
                                         geometry_msgs.msg.Polygon,
-                                        tcp_nodelay=True)
+                                        latch=True)
+
+    def _draw_linesegs(self):
+        draw_linesegs = []
+
+        if self.enabled:
+            if self.enable_which == 'circle':
+                draw_linesegs.extend( lineseg_circle(self.target_x, self.target_y,self.target_r) )
+
+            elif self.enable_which == 'box':
+                xmax = self.target_x + self.target_w
+                ymax = self.target_y + self.target_h
+
+                draw_linesegs.extend( lineseg_box(self.target_x, self.target_y, xmax, ymax) )
+
+        return draw_linesegs
+
+    #######AAAAAAAAARRRRGGGGGHHH this decorator does not work
+    #@traits.on_trait_change('enabled, enabled_which, target_*')
+    def _send_new_polygon(self, *args):
+
+        if self.enabled:
+            draw_linesegs = self._draw_linesegs()
+            if self._pubpts and draw_linesegs:
+                rospts = []
+                #convert linesegments to points
+                for seg in draw_linesegs:
+                    rospts.append( self._ptclass(seg[0],seg[1],0) )
+                #close the polygon
+                rospts.append( self._ptclass(draw_linesegs[0][0], draw_linesegs[0][1],0) )
+                self._pubpts.publish(rospts)
+
+    def _enabled_changed(self, *args):
+        self._send_new_polygon()
+    def _enable_which_changed(self, *args):
+        self._send_new_polygon()
+    def _target_x_changed(self, *args):
+        self._send_new_polygon()
+    def _target_y_changed(self, *args):
+        self._send_new_polygon()
+    def _target_r_changed(self, *args):
+        self._send_new_polygon()
+    def _target_w_changed(self, *args):
+        self._send_new_polygon()
+    def _target_h_changed(self, *args):
+        self._send_new_polygon()
 
     def camera_starting_notification(self,cam_id,
                                      pixel_format=None,
@@ -111,27 +154,5 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
             self._pubo.publish('bottom left')
 
     def process_frame(self, cam_id, buf, buf_offset, timestamp, framenumber):
-        draw_points = []
-        draw_linesegs = []
-
-        if self.enabled:
-            if self.enable_which == 'circle':
-                draw_linesegs.extend( lineseg_circle(self.target_x, self.target_y,self.target_r) )
-
-            elif self.enable_which == 'box':
-                xmax = self.target_x + self.target_w
-                ymax = self.target_y + self.target_h
-
-                draw_linesegs.extend( lineseg_box(self.target_x, self.target_y, xmax, ymax) )
-
-        if self._pubpts and draw_linesegs:
-            rospts = []
-            #convert linesegments to points
-            for seg in draw_linesegs:
-                rospts.append( self._ptclass(seg[0],seg[1],0) )
-            #close the polygon
-            rospts.append( self._ptclass(draw_linesegs[0][0], draw_linesegs[0][1],0) )
-            self._pubpts.publish(rospts)
-
-        return draw_points, draw_linesegs
+        return [], self._draw_linesegs()
 
