@@ -14,6 +14,8 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
     enabled = traits.Bool(False)
     enable_which = traits.Enum('box', 'circle', cols=2, mode='list')
 
+    send_geometry = traits.Button()
+
     target_x = traits.Int(0)
     target_x_max = traits.Int(5000)
     target_y = traits.Int(0)
@@ -29,7 +31,8 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
     traits_view = View(Group(
                         Group(
                             Item(name='enabled'),
-                            Item(name='enable_which')
+                            Item(name='enable_which'),
+                            Item(name='send_geometry'),
                         ),
                         Group(
                             Item(name='target_x', editor=RangeEditor(
@@ -123,6 +126,8 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
                 rospts.append( self._ptclass(draw_linesegs[0][0], draw_linesegs[0][1],0) )
                 self._pubpts.publish(rospts)
 
+    def _send_geometry_fired(self, *args):
+        self._send_new_polygon()
     def _enabled_changed(self, *args):
         self._send_new_polygon()
     def _enable_which_changed(self, *args):
