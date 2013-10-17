@@ -81,15 +81,15 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
             import std_msgs.msg
 
             #publish the image origin and image size
-            self._pubo = rospy.Publisher('/flyman/geom_image_origin',
+            self._pubo = rospy.Publisher('/draw_geom/image_origin',
                                         std_msgs.msg.String,
                                         latch=True)
-            self._pubs = rospy.Publisher('/flyman/geom_image_size',
+            self._pubs = rospy.Publisher('/draw_geom/image_size',
                                         geometry_msgs.msg.Point32,
                                         latch=True)
 
             self._ptclass = geometry_msgs.msg.Point32
-            self._pubpts = rospy.Publisher('/flymad/geom_poly',
+            self._pubpts = rospy.Publisher('/draw_geom/poly',
                                         geometry_msgs.msg.Polygon,
                                         latch=True)
 
