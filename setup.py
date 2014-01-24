@@ -7,6 +7,7 @@ setup(name='motmot.fview_draw_geom',
       packages = find_packages(),
       author='John Stowers',
       author_email='john.stowers@gmail.com',
+      namespace_packages = ['motmot'],
       entry_points = {
     'motmot.fview.plugins':'fview_draw_geom = motmot.fview_draw_geom.fview_draw_geom:FviewDrawGeom',
     },
