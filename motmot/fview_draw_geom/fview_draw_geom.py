@@ -96,6 +96,20 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
                                         geometry_msgs.msg.Polygon,
                                         latch=True)
 
+    def _draw_centre(self):
+        draw_points = []
+
+        if self.enabled:
+            if self.enable_which == 'circle':
+                draw_points.append( (self.target_x, self.target_y) )
+
+            elif self.enable_which == 'box':
+                xmid = self.target_x + self.target_w//2
+                ymid = self.target_y + self.target_h//2
+                draw_points.append( (xmid, ymid) )
+
+        return draw_points
+
     def _draw_linesegs(self):
         draw_linesegs = []
 
@@ -156,8 +170,8 @@ class FviewDrawGeom(HasTraits_FViewPlugin):
 
         if self._pubs:
             self._pubs.publish(int(max_width), int(max_height), 0)
-            self._pubo.publish('bottom left')
+            self._pubo.publish('top left')
 
     def process_frame(self, cam_id, buf, buf_offset, timestamp, framenumber):
-        return [], self._draw_linesegs()
+        return self._draw_centre(), self._draw_linesegs()
 
