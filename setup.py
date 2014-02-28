@@ -3,7 +3,7 @@ import sys,os
 
 setup(name='motmot.fview_draw_geom',
       description='draw geom targets on fview window and publish over ROS',
-      version='0.0.3',
+      version='0.0.4',
       packages = find_packages(),
       author='John Stowers',
       author_email='john.stowers@gmail.com',
